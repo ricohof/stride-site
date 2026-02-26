@@ -1,0 +1,2167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STRIDE — Experiential Marketing Agency</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   CSS RESET & VARIABLES
+   ═══════════════════════════════════════════ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --black: #0a0a0a;
+  --white: #f5f2ed;
+  --cream: #e8e4dd;
+  --warm-gray: #a09890;
+  --mid-gray: #6b6560;
+  --accent: #ff4d1c;
+  --accent-glow: rgba(255, 77, 28, 0.35);
+  --glass: rgba(245, 242, 237, 0.06);
+  --glass-border: rgba(245, 242, 237, 0.1);
+  --serif: 'Instrument Serif', Georgia, serif;
+  --sans: 'DM Sans', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --transition-smooth: cubic-bezier(0.23, 1, 0.32, 1);
+  --transition-snap: cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--mid-gray) var(--black);
+}
+
+body {
+  font-family: var(--sans);
+  background: var(--black);
+  color: var(--white);
+  overflow-x: hidden;
+  cursor: default;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--black);
+}
+
+/* ═══════════════════════════════════════════
+   CUSTOM CURSOR
+   ═══════════════════════════════════════════ */
+.cursor-explore {
+  cursor: none;
+}
+
+#custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--white);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  transition: transform 0.15s var(--transition-smooth), 
+              background 0.15s ease,
+              border-color 0.15s ease,
+              width 0.15s ease,
+              height 0.15s ease;
+  mix-blend-mode: difference;
+}
+
+#custom-cursor.hovering {
+  width: 50px;
+  height: 50px;
+  background: var(--accent);
+  border-color: var(--accent);
+  mix-blend-mode: normal;
+  opacity: 0.8;
+}
+
+#custom-cursor-label {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10001;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--white);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+#custom-cursor-label.visible {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  #custom-cursor, #custom-cursor-label { display: none !important; }
+}
+
+/* ═══════════════════════════════════════════
+   PERSISTENT MINI-MAP
+   ═══════════════════════════════════════════ */
+#minimap {
+  position: fixed;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 20px;
+}
+
+.minimap-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--mid-gray);
+  transition: all 0.4s var(--transition-smooth);
+  cursor: pointer;
+  position: relative;
+}
+
+.minimap-dot.active {
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+  transform: scale(1.4);
+}
+
+.minimap-label {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--warm-gray);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.minimap-dot:hover .minimap-label {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  #minimap { right: 12px; gap: 16px; }
+  .minimap-dot { width: 6px; height: 6px; }
+}
+
+/* ═══════════════════════════════════════════
+   SOUND TOGGLE
+   ═══════════════════════════════════════════ */
+#sound-toggle {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  z-index: 900;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+}
+
+#sound-toggle:hover {
+  border-color: var(--accent);
+}
+
+#sound-toggle svg {
+  width: 16px;
+  height: 16px;
+  fill: var(--warm-gray);
+  transition: fill 0.3s ease;
+}
+
+#sound-toggle.on svg {
+  fill: var(--accent);
+}
+
+/* ═══════════════════════════════════════════
+   GRAIN OVERLAY
+   ═══════════════════════════════════════════ */
+.grain {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* ═══════════════════════════════════════════
+   SECTION SHARED
+   ═══════════════════════════════════════════ */
+section {
+  position: relative;
+  min-height: 100vh;
+  padding: 80px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  section { padding: 60px 20px; }
+}
+
+.section-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 32px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s var(--transition-smooth);
+}
+
+.section-tag.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ═══════════════════════════════════════════
+   1. HERO / LOBBY
+   ═══════════════════════════════════════════ */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+}
+
+.hero-bg::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: 
+    radial-gradient(ellipse 600px 400px at 30% 40%, rgba(255,77,28,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 500px 500px at 70% 60%, rgba(255,77,28,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 800px 300px at 50% 80%, rgba(245,242,237,0.02) 0%, transparent 50%);
+  animation: bgDrift 20s ease-in-out infinite alternate;
+}
+
+@keyframes bgDrift {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-30px, -20px) scale(1.05); }
+}
+
+.hero-grid-lines {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  opacity: 0.04;
+  background-image:
+    linear-gradient(var(--white) 1px, transparent 1px),
+    linear-gradient(90deg, var(--white) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+}
+
+.hero-logo {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeUp 1s 0.3s var(--transition-smooth) forwards;
+}
+
+.hero-headline {
+  font-family: var(--serif);
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  color: var(--white);
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeUp 1s 0.5s var(--transition-smooth) forwards;
+}
+
+.hero-headline em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.hero-sub {
+  font-family: var(--sans);
+  font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+  font-weight: 300;
+  color: var(--warm-gray);
+  max-width: 620px;
+  margin: 0 auto 48px;
+  line-height: 1.7;
+  opacity: 0;
+  animation: fadeUp 1s 0.7s var(--transition-smooth) forwards;
+}
+
+.hero-ctas {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 1s 0.9s var(--transition-smooth) forwards;
+}
+
+.btn-primary {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 16px 36px;
+  background: var(--accent);
+  color: var(--black);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s var(--transition-smooth);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primary:hover {
+  background: var(--white);
+  color: var(--black);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(255,77,28,0.25);
+}
+
+.btn-secondary {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 16px 36px;
+  background: transparent;
+  color: var(--warm-gray);
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  transition: all 0.3s var(--transition-smooth);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-secondary:hover {
+  color: var(--white);
+  border-color: var(--white);
+  transform: translateY(-2px);
+}
+
+/* Trusted by */
+.trusted-strip {
+  position: absolute;
+  bottom: 48px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  z-index: 2;
+  opacity: 0;
+  animation: fadeUp 1s 1.2s var(--transition-smooth) forwards;
+}
+
+.trusted-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--mid-gray);
+  margin-bottom: 20px;
+}
+
+.trusted-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  padding: 0 20px;
+}
+
+.trusted-logo {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mid-gray);
+  opacity: 0.45;
+  letter-spacing: 0.03em;
+  transition: opacity 0.3s ease;
+}
+
+.trusted-logo:hover {
+  opacity: 0.8;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════
+   2. POP-UP FLOOR — IMMERSIVE 3D VENUE
+   ═══════════════════════════════════════════ */
+#floor {
+  min-height: 100vh;
+  padding: 80px 24px 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.floor-header {
+  text-align: center;
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 10;
+}
+
+.floor-title {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 400;
+  margin-bottom: 12px;
+}
+
+.floor-subtitle {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  color: var(--warm-gray);
+  font-weight: 300;
+}
+
+/* ── THE 3D VENUE CONTAINER ── */
+.venue-wrapper {
+  width: 100%;
+  max-width: 1100px;
+  position: relative;
+  perspective: 1200px;
+  padding-bottom: 20px;
+}
+
+.venue {
+  position: relative;
+  width: 100%;
+  padding-bottom: 70%;
+  transform: rotateX(18deg) rotateZ(0deg);
+  transform-style: preserve-3d;
+  transition: transform 0.8s var(--transition-smooth);
+}
+
+.venue:hover {
+  transform: rotateX(14deg) rotateZ(0deg);
+}
+
+/* ── THE FLOOR PLANE ── */
+.venue-floor {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    linear-gradient(180deg, rgba(255,77,28,0.02) 0%, rgba(10,10,10,0) 60%),
+    linear-gradient(rgba(245,242,237,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245,242,237,0.04) 1px, transparent 1px);
+  background-size: 100% 100%, 60px 60px, 60px 60px;
+  border: 1px solid rgba(245,242,237,0.07);
+  transform: translateZ(0);
+}
+
+/* Ambient glow on the floor */
+.venue-floor::before {
+  content: '';
+  position: absolute;
+  top: 20%; left: 30%;
+  width: 40%; height: 40%;
+  background: radial-gradient(ellipse, rgba(255,77,28,0.06) 0%, transparent 70%);
+  pointer-events: none;
+  animation: floorGlow 6s ease-in-out infinite alternate;
+}
+
+@keyframes floorGlow {
+  0% { opacity: 0.4; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1.2); }
+}
+
+/* Edge light strips */
+.venue-floor::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 5%;
+  width: 90%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.2;
+}
+
+/* ── 3D ASSETS ON THE FLOOR ── */
+.venue-asset {
+  position: absolute;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: all 0.5s var(--transition-smooth);
+  z-index: 2;
+}
+
+.venue-asset:hover {
+  z-index: 20;
+}
+
+/* The 3D object — base + vertical face */
+.asset-base {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* The vertical standing element */
+.asset-structure {
+  width: 80px;
+  height: 90px;
+  background: linear-gradient(180deg, rgba(30,28,26,0.95) 0%, rgba(20,18,16,0.98) 100%);
+  border: 1px solid rgba(245,242,237,0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  position: relative;
+  transition: all 0.5s var(--transition-smooth);
+  transform: translateZ(40px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+.venue-asset:hover .asset-structure {
+  border-color: var(--accent);
+  box-shadow: 
+    0 0 40px rgba(255,77,28,0.15),
+    0 20px 60px rgba(0,0,0,0.6),
+    inset 0 0 30px rgba(255,77,28,0.05);
+  transform: translateZ(55px);
+  background: linear-gradient(180deg, rgba(255,77,28,0.08) 0%, rgba(20,18,16,0.98) 100%);
+}
+
+/* Top accent line */
+.asset-structure::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.venue-asset:hover .asset-structure::before {
+  opacity: 1;
+}
+
+/* Shadow on floor */
+.asset-shadow {
+  width: 70px;
+  height: 10px;
+  background: radial-gradient(ellipse, rgba(0,0,0,0.4) 0%, transparent 70%);
+  margin-top: -2px;
+  transition: all 0.5s var(--transition-smooth);
+  transform: translateZ(0);
+}
+
+.venue-asset:hover .asset-shadow {
+  width: 90px;
+  height: 14px;
+  background: radial-gradient(ellipse, rgba(255,77,28,0.15) 0%, transparent 70%);
+}
+
+.asset-emoji {
+  font-size: 28px;
+  transition: transform 0.4s var(--transition-smooth);
+  filter: grayscale(0.3);
+}
+
+.venue-asset:hover .asset-emoji {
+  transform: scale(1.15);
+  filter: grayscale(0);
+}
+
+.asset-name {
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mid-gray);
+  text-align: center;
+  line-height: 1.3;
+  max-width: 70px;
+  transition: color 0.3s ease;
+}
+
+.venue-asset:hover .asset-name {
+  color: var(--white);
+}
+
+/* ── HOVER TOOLTIP (exhibit label) ── */
+.asset-tooltip {
+  position: absolute;
+  bottom: calc(100% + 16px);
+  left: 50%;
+  transform: translateX(-50%) translateZ(60px) translateY(8px);
+  width: 240px;
+  background: rgba(15,13,11,0.97);
+  border: 1px solid var(--accent);
+  padding: 18px;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.4s var(--transition-smooth);
+  z-index: 100;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6), 0 0 20px rgba(255,77,28,0.1);
+}
+
+.venue-asset:hover .asset-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateZ(60px) translateY(0);
+  pointer-events: auto;
+}
+
+/* Tooltip arrow */
+.asset-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 10px;
+  height: 10px;
+  background: rgba(15,13,11,0.97);
+  border-right: 1px solid var(--accent);
+  border-bottom: 1px solid var(--accent);
+}
+
+.tooltip-tag {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.tooltip-title {
+  font-family: var(--serif);
+  font-size: 1rem;
+  color: var(--white);
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.tooltip-desc {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  color: var(--warm-gray);
+  font-weight: 300;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.tooltip-cta {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── FLOOR MARKERS (connecting lines) ── */
+.floor-marker {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── VENUE LABEL ── */
+.venue-label {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--mid-gray);
+  opacity: 0.4;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+/* ── PULSING BEACON ── */
+.asset-beacon {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  z-index: 5;
+}
+
+.asset-beacon::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  transform: translate(-50%, -50%);
+  animation: beacon 2.5s ease-out infinite;
+}
+
+@keyframes beacon {
+  0% { width: 8px; height: 8px; opacity: 0.6; }
+  100% { width: 30px; height: 30px; opacity: 0; }
+}
+
+/* ── MOBILE: Flatten to immersive vertical scroll ── */
+@media (max-width: 900px) {
+  .venue-wrapper {
+    perspective: none;
+  }
+  
+  .venue {
+    transform: none;
+    padding-bottom: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+  
+  .venue:hover {
+    transform: none;
+  }
+  
+  .venue-floor {
+    display: none;
+  }
+  
+  .venue-asset {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    width: auto !important;
+  }
+  
+  .asset-base {
+    background: rgba(20,18,16,0.95);
+    border: 1px solid rgba(245,242,237,0.07);
+    padding: 28px 16px;
+    transition: all 0.3s ease;
+  }
+
+  .venue-asset:hover .asset-base {
+    border-color: var(--accent);
+  }
+  
+  .asset-structure {
+    width: auto;
+    height: auto;
+    background: none;
+    border: none;
+    box-shadow: none;
+    transform: none;
+    padding: 0;
+  }
+
+  .venue-asset:hover .asset-structure {
+    transform: none;
+    box-shadow: none;
+    background: none;
+    border: none;
+  }
+  
+  .asset-structure::before { display: none; }
+  .asset-shadow { display: none; }
+  .asset-beacon { display: none; }
+  .floor-marker { display: none; }
+  .venue-label { display: none; }
+  
+  .asset-tooltip {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    width: auto;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    padding: 0 0;
+    margin-top: 0;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    transition: all 0.4s ease;
+    pointer-events: auto;
+  }
+  
+  .asset-tooltip::after { display: none; }
+  
+  .venue-asset:hover .asset-tooltip {
+    opacity: 1;
+    max-height: 200px;
+    padding: 14px 0 0;
+    margin-top: 8px;
+    transform: none;
+    border-top: 1px solid rgba(245,242,237,0.08);
+  }
+  
+  .tooltip-title { font-size: 0.85rem; }
+  .tooltip-desc { font-size: 0.75rem; }
+}
+
+@media (max-width: 480px) {
+  .venue {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   3. HOW WE WORK
+   ═══════════════════════════════════════════ */
+#process {
+  min-height: 100vh;
+  align-items: center;
+}
+
+.process-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  max-width: 1100px;
+  width: 100%;
+  margin-top: 48px;
+}
+
+@media (max-width: 900px) {
+  .process-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .process-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.process-step {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  padding: 40px 28px;
+  text-align: center;
+  transition: all 0.5s var(--transition-smooth);
+  opacity: 0;
+  transform: translateY(40px);
+  position: relative;
+  overflow: hidden;
+}
+
+.process-step.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.process-step:hover {
+  border-color: var(--accent);
+  background: rgba(255,77,28,0.04);
+}
+
+.process-step::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.process-step:hover::before {
+  opacity: 1;
+}
+
+.step-number {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: var(--accent);
+  margin-bottom: 24px;
+}
+
+.step-icon {
+  font-size: 32px;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.step-title {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+}
+
+.step-desc {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--warm-gray);
+  font-weight: 300;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════
+   4. PROOF / CASE HIGHLIGHTS
+   ═══════════════════════════════════════════ */
+#proof {
+  min-height: 100vh;
+  align-items: center;
+}
+
+.proof-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  max-width: 1100px;
+  width: 100%;
+  margin-top: 48px;
+}
+
+@media (max-width: 900px) {
+  .proof-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .proof-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.case-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  padding: 36px 28px;
+  transition: all 0.5s var(--transition-smooth);
+  opacity: 0;
+  transform: translateY(40px);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.case-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.case-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-4px);
+}
+
+.case-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.case-title {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+}
+
+.case-brand {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--warm-gray);
+  font-weight: 300;
+  margin-bottom: 16px;
+}
+
+.case-desc {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  color: var(--mid-gray);
+  font-weight: 300;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.case-result {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--warm-gray);
+  padding-top: 16px;
+  border-top: 1px solid var(--glass-border);
+}
+
+.case-result strong {
+  color: var(--accent);
+  font-weight: 400;
+}
+
+.case-cta {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-top: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: gap 0.3s ease;
+}
+
+.case-card:hover .case-cta {
+  gap: 12px;
+}
+
+/* ═══════════════════════════════════════════
+   5. CONTACT / EXIT
+   ═══════════════════════════════════════════ */
+#contact {
+  min-height: 100vh;
+  align-items: center;
+  padding-bottom: 120px;
+}
+
+.contact-wrapper {
+  max-width: 680px;
+  width: 100%;
+  text-align: center;
+}
+
+.contact-headline {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 400;
+  margin-bottom: 12px;
+}
+
+.contact-sub {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  color: var(--warm-gray);
+  font-weight: 300;
+  margin-bottom: 48px;
+}
+
+.contact-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  text-align: left;
+}
+
+@media (max-width: 600px) {
+  .contact-form { grid-template-columns: 1fr; }
+}
+
+.form-group {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  padding: 20px;
+  transition: border-color 0.3s ease;
+}
+
+.form-group:focus-within {
+  border-color: var(--accent);
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mid-gray);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  background: transparent;
+  border: none;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  color: var(--white);
+  outline: none;
+  resize: none;
+}
+
+.form-group select {
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+
+.form-group select option {
+  background: var(--black);
+  color: var(--white);
+}
+
+.form-group textarea {
+  min-height: 60px;
+}
+
+.form-submit {
+  grid-column: 1 / -1;
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* ═══════════════════════════════════════════
+   MODAL
+   ═══════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(10, 10, 10, 0.9);
+  backdrop-filter: blur(20px);
+  z-index: 5000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s var(--transition-smooth);
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal {
+  background: rgba(20, 18, 16, 0.95);
+  border: 1px solid var(--glass-border);
+  max-width: 580px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 48px;
+  position: relative;
+  transform: translateY(30px) scale(0.97);
+  transition: all 0.4s var(--transition-smooth);
+}
+
+.modal-overlay.active .modal {
+  transform: translateY(0) scale(1);
+}
+
+.modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: 1px solid var(--glass-border);
+  color: var(--warm-gray);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  font-family: var(--sans);
+}
+
+.modal-close:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.modal-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.modal-title {
+  font-family: var(--serif);
+  font-size: 1.8rem;
+  font-weight: 400;
+  margin-bottom: 12px;
+}
+
+.modal-promise {
+  font-family: var(--sans);
+  font-size: 1rem;
+  color: var(--warm-gray);
+  font-weight: 300;
+  margin-bottom: 28px;
+  font-style: italic;
+}
+
+.modal-includes {
+  list-style: none;
+  margin-bottom: 28px;
+}
+
+.modal-includes li {
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  color: var(--cream);
+  font-weight: 300;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--glass-border);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.modal-includes li::before {
+  content: '—';
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.modal-outcome {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--warm-gray);
+  padding: 16px 0;
+  border-top: 1px solid var(--glass-border);
+  margin-top: 4px;
+  margin-bottom: 28px;
+}
+
+.modal-outcome strong {
+  color: var(--accent);
+  font-weight: 400;
+}
+
+.modal-ctas {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Modal scrollbar */
+.modal::-webkit-scrollbar { width: 4px; }
+.modal::-webkit-scrollbar-track { background: transparent; }
+.modal::-webkit-scrollbar-thumb { background: var(--mid-gray); border-radius: 2px; }
+
+@media (max-width: 600px) {
+  .modal { padding: 32px 24px; }
+  .modal-title { font-size: 1.4rem; }
+}
+
+/* ═══════════════════════════════════════════
+   SCROLL ANIMATIONS
+   ═══════════════════════════════════════════ */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s var(--transition-smooth);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Fallback: if IntersectionObserver doesn't fire, show after animation */
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .process-step, .case-card, .section-tag {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 40px 24px;
+  border-top: 1px solid var(--glass-border);
+}
+
+.footer-text {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mid-gray);
+}
+
+/* ═══════════════════════════════════════════
+   DIVIDER
+   ═══════════════════════════════════════════ */
+.section-divider {
+  width: 60px;
+  height: 1px;
+  background: var(--glass-border);
+  margin: 0 auto 32px;
+}
+</style>
+</head>
+<body>
+
+<!-- Grain overlay -->
+<div class="grain"></div>
+
+<!-- Custom cursor (desktop) -->
+<div id="custom-cursor"></div>
+<div id="custom-cursor-label"></div>
+
+<!-- Mini-map -->
+<nav id="minimap" aria-label="Page navigation">
+  <div class="minimap-dot active" data-section="hero" onclick="scrollToSection('hero')" role="button" tabindex="0" aria-label="Go to Lobby">
+    <span class="minimap-label">Lobby</span>
+  </div>
+  <div class="minimap-dot" data-section="floor" onclick="scrollToSection('floor')" role="button" tabindex="0" aria-label="Go to Activation Floor">
+    <span class="minimap-label">Floor</span>
+  </div>
+  <div class="minimap-dot" data-section="process" onclick="scrollToSection('process')" role="button" tabindex="0" aria-label="Go to Process">
+    <span class="minimap-label">Process</span>
+  </div>
+  <div class="minimap-dot" data-section="proof" onclick="scrollToSection('proof')" role="button" tabindex="0" aria-label="Go to Proof">
+    <span class="minimap-label">Proof</span>
+  </div>
+  <div class="minimap-dot" data-section="contact" onclick="scrollToSection('contact')" role="button" tabindex="0" aria-label="Go to Exit">
+    <span class="minimap-label">Exit</span>
+  </div>
+</nav>
+
+<!-- Sound toggle -->
+<button id="sound-toggle" aria-label="Toggle sound effects" title="Toggle sound">
+  <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+</button>
+
+<!-- ═══════════════════════════════════════════
+     1. HERO / LOBBY
+     ═══════════════════════════════════════════ -->
+<section id="hero">
+  <div class="hero-bg">
+    <div class="hero-grid-lines"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-logo">STRIDE</div>
+    <h1 class="hero-headline">Launches are seen.<br><em>Experiences</em> are remembered.</h1>
+    <p class="hero-sub">Stride designs real-world brand moments — pop-ups, retail displays, launch showcases, and immersive branded environments.</p>
+    <div class="hero-ctas">
+      <a href="#floor" class="btn-primary" onclick="playClick()">Explore the Activation</a>
+      <a href="#contact" class="btn-secondary" onclick="playClick()">Book a Discovery Call</a>
+    </div>
+  </div>
+  <div class="trusted-strip">
+    <div class="trusted-label">Trusted by teams launching with</div>
+    <div class="trusted-logos">
+      <span class="trusted-logo">Nestlé</span>
+      <span class="trusted-logo">Unilever</span>
+      <span class="trusted-logo">P&G</span>
+      <span class="trusted-logo">San Miguel</span>
+      <span class="trusted-logo">Globe Telecom</span>
+      <span class="trusted-logo">Jollibee Group</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     2. POP-UP FLOOR
+     ═══════════════════════════════════════════ -->
+<section id="floor">
+  <div class="floor-header reveal">
+    <div class="section-tag">02 — The Activation Floor</div>
+    <h2 class="floor-title">Walk the Floor</h2>
+    <p class="floor-subtitle">Hover on each installation. Click to explore the full service.</p>
+  </div>
+
+  <div class="venue-wrapper">
+    <div class="venue" id="venue-scene" role="region" aria-label="Interactive 3D activation floor">
+
+      <!-- The floor plane -->
+      <div class="venue-floor"></div>
+
+      <!-- Floor marker dots for atmosphere -->
+      <div class="floor-marker" style="top:20%;left:20%"></div>
+      <div class="floor-marker" style="top:50%;left:50%"></div>
+      <div class="floor-marker" style="top:70%;left:75%"></div>
+      <div class="floor-marker" style="top:35%;left:85%"></div>
+      <div class="floor-marker" style="top:80%;left:30%"></div>
+
+      <!-- ASSET 1: Stage — top-left area -->
+      <div class="venue-asset" style="top:8%;left:5%;width:80px" data-service="0"
+           role="button" tabindex="0" aria-label="Pop-ups & Brand Activations">
+        <div class="asset-base">
+          <div class="asset-structure">
+            <span class="asset-beacon"></span>
+            <span class="asset-emoji">🎪</span>
+            <span class="asset-name">Main<br>Stage</span>
+          </div>
+          <div class="asset-shadow"></div>
+        </div>
+        <div class="asset-tooltip">
+          <div class="tooltip-tag">Installation 01</div>
+          <div class="tooltip-title">Pop-ups & Brand Activations</div>
+          <div class="tooltip-desc">Turn blank spaces into branded worlds people walk into, interact with, and talk about.</div>
+          <div class="tooltip-cta">Click to explore →</div>
+        </div>
+      </div>
+
+      <!-- ASSET 2: Retail Shelf — top-center -->
+      <div class="venue-asset" style="top:5%;left:30%;width:80px" data-service="1"
+           role="button" tabindex="0" aria-label="Retail Displays & In-store Experiences">
+        <div class="asset-base">
+          <div class="asset-structure">
+            <span class="asset-beacon" style="animation-delay:0.5s"></span>
+            <span class="asset-emoji">🏪</span>
+            <span class="asset-name">Retail<br>Shelf</span>
+          </div>
+          <div class="asset-shadow"></div>
+        </div>
+        <div class="asset-tooltip">
+          <div class="tooltip-tag">Installation 02</div>
+          <div class="tooltip-title">Retail Displays & In-store</div>
+          <div class="tooltip-desc">Make your product impossible to walk past on the shelf or the floor.</div>
+          <div class="tooltip-cta">Click to explore →</div>
+        </div>
+      </div>
+
+      <!-- ASSET 3: Exhibit Booth — top-right -->
+      <div class="venue-asset" style="top:10%;left:58%;width:80px" data-service="2"
+           role="button" tabindex="0" aria-label="Event Booths & Exhibit Design">
+        <div class="asset-base">
+          <div class="asset-structure">
+            <span class="asset-beacon" style="animation-delay:1s"></span>
+            <span class="asset-emoji">🎯</span>
+            <span class="asset-name">Exhibit<br>Booth</span>
+          </div>
+          <div class="asset-shadow"></div>
+        </div>
+        <div class="asset-tooltip">
+          <div class="tooltip-tag">Installation 03</div>
+          <div class="tooltip-title">Event Booths & Exhibit Design</div>
+          <div class="tooltip-desc">Own the floor at every expo, conference, and industry event.</div>
+          <div class="tooltip-cta">Click to explore →</div>
+        </div>
+      </div>
+
+      <!-- ASSET 4: Product Pedestal — far right -->
+      <div class="venue-asset" style="top:6%;left:82%;width:80px" data-service="3"
+           role="button" tabindex="0" aria-label="Launch Showcases & Brand Moments">
+        <div class="asset-base">
+          <div class="asset-structure">
+            <span class="asset-beacon" style="animation-delay:1.5s"></span>
+            <span class="asset-emoji">💎</span>
+            <span class="asset-name">Product<br>Pedestal</span>
+          </div>
+          <div class="asset-shadow"></div>
+        </div>
+        <div class="asset-tooltip">
+          <div class="tooltip-tag">Installation 04</div>
+          <div class="tooltip-title">Launch Showcases</div>
+          <div class="tooltip-desc">Give your product a debut worthy of the work that built it.</div>
+          <div class="tooltip-cta">Click to explore →</div>
+        </div>
+      </div>
+
+      <!-- ASSET 5: Wayfinding — center-left -->
+      <div class="venue-asset" style="top:42%;left:12%;width:80px" data-service="4"
+           role="button" tabindex="0" aria-label="Environmental Branding & Wayfinding">
+        <div class="asset-base">
+          <div class="asset-structure">
+            <span class="asset-beacon" style="animation-delay:2s"></span>
+            <span class="asset-emoji">🧭</span>
+            <span class="asset-name">Way-<br>finding</span>
+          </div>
+          <div class="asset-shadow"></div>
+        </div>
+        <div class="asset-tooltip">
+          <div class="tooltip-tag">Installation 05</div>
+          <div class="tooltip-title">Environmental Branding</div>
+          <div class="tooltip-desc">Spaces that communicate your brand without saying a word.</div>
+          <div class="tooltip-cta">Click to explore →</div>
+        </div>
+      </div>
+
+      <!-- ASSET 6: LED Wall — center -->
+      <div class="venue-asset" style="top:38%;left:44%;width:80px" data-service="5"
+           role="button" tabindex="0" aria-label="Creative Concept & Experience Design">
+        <div class="asset-base">
+          <div class="asset-structure">
+            <span class="asset-beacon" style="animation-delay:0.3s"></span>
+            <span class="asset-emoji">🖥️</span>
+            <span class="asset-name">LED<br>Wall</span>
+          </div>
+          <div class="asset-shadow"></div>
+        </div>
+        <div class="asset-tooltip">
+          <div class="tooltip-tag">Installation 06</div>
+          <div class="tooltip-title">Creative Concept & Design</div>
+          <div class="tooltip-desc">The big idea that makes everything else fall into place.</div>
+          <div class="tooltip-cta">Click to explore →</div>
+        </div>
+      </div>
+
+      <!-- ASSET 7: Fabrication Bay — lower-left -->
+      <div class="venue-asset" style="top:68%;left:6%;width:80px" data-service="6"
+           role="button" tabindex="0" aria-label="Production, Fabrication & Build Oversight">
+        <div class="asset-base">
+          <div class="asset-structure">
+            <span class="asset-beacon" style="animation-delay:0.8s"></span>
+            <span class="asset-emoji">🔧</span>
+            <span class="asset-name">Fab<br>Bay</span>
+          </div>
+          <div class="asset-shadow"></div>
+        </div>
+        <div class="asset-tooltip">
+          <div class="tooltip-tag">Installation 07</div>
+          <div class="tooltip-title">Production & Fabrication</div>
+          <div class="tooltip-desc">We manage every vendor, timeline, and bolt so you don't have to.</div>
+          <div class="tooltip-cta">Click to explore →</div>
+        </div>
+      </div>
+
+      <!-- ASSET 8: Photo Booth — lower-right -->
+      <div class="venue-asset" style="top:62%;left:68%;width:80px" data-service="7"
+           role="button" tabindex="0" aria-label="Content Capture & Post-event Documentation">
+        <div class="asset-base">
+          <div class="asset-structure">
+            <span class="asset-beacon" style="animation-delay:1.3s"></span>
+            <span class="asset-emoji">📸</span>
+            <span class="asset-name">Photo<br>Booth</span>
+          </div>
+          <div class="asset-shadow"></div>
+        </div>
+        <div class="asset-tooltip">
+          <div class="tooltip-tag">Installation 08</div>
+          <div class="tooltip-title">Content Capture</div>
+          <div class="tooltip-desc">Your activation lives on long after the last guest leaves.</div>
+          <div class="tooltip-cta">Click to explore →</div>
+        </div>
+      </div>
+
+    </div>
+    <div class="venue-label">Activation Floor Plan — Hover to Preview · Click to Explore</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     3. HOW WE WORK
+     ═══════════════════════════════════════════ -->
+<section id="process">
+  <div style="text-align:center;width:100%">
+    <div class="section-tag reveal">03 — The Process</div>
+    <h2 class="floor-title reveal">Four stages. One seamless build.</h2>
+    <p class="floor-subtitle reveal">From brief to build-out, we handle everything.</p>
+  </div>
+
+  <div class="process-grid">
+    <div class="process-step" data-delay="0">
+      <div class="step-number">01</div>
+      <span class="step-icon">🔍</span>
+      <h3 class="step-title">Discover</h3>
+      <p class="step-desc">Goals, audience, space constraints, brand standards. We map every variable before we sketch.</p>
+    </div>
+    <div class="process-step" data-delay="100">
+      <div class="step-number">02</div>
+      <span class="step-icon">✏️</span>
+      <h3 class="step-title">Design</h3>
+      <p class="step-desc">Concept development, 3D renders, visual systems, and experience flow — presented for approval.</p>
+    </div>
+    <div class="process-step" data-delay="200">
+      <div class="step-number">03</div>
+      <span class="step-icon">🏗️</span>
+      <h3 class="step-title">Build</h3>
+      <p class="step-desc">Production management, fabrication partners, logistics coordination, and on-site oversight.</p>
+    </div>
+    <div class="process-step" data-delay="300">
+      <div class="step-number">04</div>
+      <span class="step-icon">🚀</span>
+      <h3 class="step-title">Deliver</h3>
+      <p class="step-desc">Launch day execution, real-time management, content capture, and post-event documentation.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     4. PROOF / CASE HIGHLIGHTS
+     ═══════════════════════════════════════════ -->
+<section id="proof">
+  <div style="text-align:center;width:100%">
+    <div class="section-tag reveal">04 — The Proof</div>
+    <h2 class="floor-title reveal">Selected Activations</h2>
+    <p class="floor-subtitle reveal">Recent builds across retail, launch, and experiential.</p>
+  </div>
+
+  <div class="proof-grid">
+
+    <div class="case-card" data-delay="0" data-case="0">
+      <div class="case-tag">Pop-up Activation</div>
+      <h3 class="case-title">The Refresh Station</h3>
+      <p class="case-brand">Beverage Brand — Mall of Asia, Manila</p>
+      <p class="case-desc">A 3-day sampling activation with custom cooling tunnel, interactive LED wall, and branded photo moments.</p>
+      <div class="case-result"><strong>12,000+</strong> samples distributed · <strong>3.2M</strong> social impressions</div>
+      <span class="case-cta">View Case Study →</span>
+    </div>
+
+    <div class="case-card" data-delay="100" data-case="1">
+      <div class="case-tag">Retail Display</div>
+      <h3 class="case-title">Shelf Takeover</h3>
+      <p class="case-brand">FMCG Brand — 120 Stores Nationwide</p>
+      <p class="case-desc">End-cap and gondola redesign with modular display system, rolled out across supermarket and convenience channels.</p>
+      <div class="case-result"><strong>34%</strong> lift in shelf visibility · <strong>18%</strong> sales uplift in pilot stores</div>
+      <span class="case-cta">View Case Study →</span>
+    </div>
+
+    <div class="case-card" data-delay="200" data-case="2">
+      <div class="case-tag">Launch Showcase</div>
+      <h3 class="case-title">The Unveil</h3>
+      <p class="case-brand">Tech Brand — BGC Launch Event</p>
+      <p class="case-desc">Product reveal experience with staged lighting, curated walkthrough zones, and live content capture for social distribution.</p>
+      <div class="case-result"><strong>400+</strong> attendees · <strong>96%</strong> positive sentiment in post-event survey</div>
+      <span class="case-cta">View Case Study →</span>
+    </div>
+
+    <div class="case-card" data-delay="300" data-case="3">
+      <div class="case-tag">Exhibit Design</div>
+      <h3 class="case-title">The Experience Hub</h3>
+      <p class="case-brand">Telco Brand — Industry Expo</p>
+      <p class="case-desc">60sqm booth with demo stations, meeting pods, and immersive brand tunnel driving foot traffic across the expo floor.</p>
+      <div class="case-result"><strong>#1</strong> most-visited booth · <strong>200+</strong> qualified leads captured</div>
+      <span class="case-cta">View Case Study →</span>
+    </div>
+
+    <div class="case-card" data-delay="400" data-case="4">
+      <div class="case-tag">Environmental Branding</div>
+      <h3 class="case-title">The Branded Campus</h3>
+      <p class="case-brand">Corporate HQ — Makati Office</p>
+      <p class="case-desc">Full environmental branding of a 4-floor headquarters: wayfinding, culture walls, meeting room theming, and reception experience.</p>
+      <div class="case-result"><strong>4</strong> floors branded · <strong>92%</strong> employee satisfaction uplift</div>
+      <span class="case-cta">View Case Study →</span>
+    </div>
+
+    <div class="case-card" data-delay="500" data-case="5">
+      <div class="case-tag">Content Capture</div>
+      <h3 class="case-title">The Documentation Package</h3>
+      <p class="case-brand">Beauty Brand — Multi-city Tour</p>
+      <p class="case-desc">Full photo + video documentation across 5 city stops, delivered as a campaign asset library and highlight reel within 72 hours.</p>
+      <div class="case-result"><strong>500+</strong> assets delivered · <strong>48hr</strong> average turnaround per city</div>
+      <span class="case-cta">View Case Study →</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     5. CONTACT / EXIT
+     ═══════════════════════════════════════════ -->
+<section id="contact">
+  <div class="contact-wrapper">
+    <div class="section-tag reveal">05 — The Exit</div>
+    <h2 class="contact-headline reveal">You've walked the floor.<br>Now let's build yours.</h2>
+    <p class="contact-sub reveal">Tell us what you're launching — we'll tell you how to make it unforgettable.</p>
+
+    <form class="contact-form reveal" onsubmit="handleSubmit(event)" aria-label="Contact form">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" placeholder="Your full name" required>
+      </div>
+      <div class="form-group">
+        <label for="company">Company</label>
+        <input type="text" id="company" name="company" placeholder="Brand or company">
+      </div>
+      <div class="form-group full-width">
+        <label for="launching">What are you launching?</label>
+        <input type="text" id="launching" name="launching" placeholder="Product, campaign, retail concept, event...">
+      </div>
+      <div class="form-group">
+        <label for="budget">Budget Range</label>
+        <select id="budget" name="budget">
+          <option value="" disabled selected>Select range</option>
+          <option value="under-500k">Under ₱500K</option>
+          <option value="500k-1m">₱500K – ₱1M</option>
+          <option value="1m-3m">₱1M – ₱3M</option>
+          <option value="3m-plus">₱3M+</option>
+          <option value="tbd">To be determined</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="timeline">Timeline</label>
+        <select id="timeline" name="timeline">
+          <option value="" disabled selected>When do you need it?</option>
+          <option value="asap">ASAP (< 4 weeks)</option>
+          <option value="1-2months">1 – 2 months</option>
+          <option value="3-6months">3 – 6 months</option>
+          <option value="planning">Still planning</option>
+        </select>
+      </div>
+      <div class="form-group full-width">
+        <label for="link">Website or Socials</label>
+        <input type="url" id="link" name="link" placeholder="https://...">
+      </div>
+      <div class="form-submit">
+        <button type="submit" class="btn-primary">Request a Proposal</button>
+        <a href="#" class="btn-secondary" onclick="playClick()">Book a 20-min Call</a>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <p class="footer-text">© 2026 Stride — Experiential Marketing Agency</p>
+</footer>
+
+<!-- ═══════════════════════════════════════════
+     MODAL TEMPLATE
+     ═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal" id="modal-content">
+    <button class="modal-close" id="modal-close" aria-label="Close modal">✕</button>
+    <div class="modal-tag" id="modal-tag"></div>
+    <h2 class="modal-title" id="modal-title"></h2>
+    <p class="modal-promise" id="modal-promise"></p>
+    <ul class="modal-includes" id="modal-includes"></ul>
+    <div class="modal-outcome" id="modal-outcome"></div>
+    <div class="modal-ctas">
+      <a href="#contact" class="btn-primary" onclick="closeModal();playClick()">Request a Proposal</a>
+      <button class="btn-secondary" onclick="playClick()">See a Sample</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════ -->
+<script>
+// ──────────────────────────────────────────
+// SERVICE DATA
+// ──────────────────────────────────────────
+const services = [
+  {
+    tag: 'Stage',
+    title: 'Pop-ups & Brand Activations',
+    promise: 'Turn a blank space into a branded world people walk into, interact with, and talk about.',
+    includes: [
+      'Full concept-to-build pop-up environments',
+      'Interactive installations, sampling zones, and branded moments',
+      'Permits, logistics, staffing coordination, and on-site management'
+    ],
+    outcome: 'A turnkey activation your audience experiences — and your competitors notice.'
+  },
+  {
+    tag: 'Retail Shelf',
+    title: 'Retail Displays & In-store Experiences',
+    promise: 'Make your product impossible to walk past on the shelf or the floor.',
+    includes: [
+      'End-cap, gondola, and freestanding display design + production',
+      'Modular systems for multi-store rollout',
+      'POS integration, shelf strategy, and visual merchandising guidance'
+    ],
+    outcome: 'Displays that lift sell-through, not just awareness.'
+  },
+  {
+    tag: 'Exhibit Booth',
+    title: 'Event Booths & Exhibit Design',
+    promise: 'Own the floor at every expo, conference, and industry event you attend.',
+    includes: [
+      'Custom booth design — from 9sqm shells to 100sqm+ builds',
+      'Demo stations, meeting pods, and immersive brand tunnels',
+      'AV integration, lighting rigs, and on-site build supervision'
+    ],
+    outcome: 'The booth everyone visits first — and remembers after.'
+  },
+  {
+    tag: 'Product Pedestal',
+    title: 'Launch Showcases & Brand Moments',
+    promise: 'Give your product a debut worthy of the work that went into building it.',
+    includes: [
+      'Reveal environments with staged lighting and curated walkthrough zones',
+      'Invite-only and public-facing launch formats',
+      'Live production management and real-time content capture'
+    ],
+    outcome: 'A launch that generates press, social proof, and genuine demand.'
+  },
+  {
+    tag: 'Wayfinding',
+    title: 'Environmental Branding & Wayfinding',
+    promise: 'Transform physical spaces into branded experiences people feel the moment they walk in.',
+    includes: [
+      'Wayfinding systems, signage suites, and directional graphics',
+      'Office, campus, and venue branding — reception to rooftop',
+      'Culture walls, themed zones, and spatial storytelling'
+    ],
+    outcome: 'A space that communicates your brand without saying a word.'
+  },
+  {
+    tag: 'LED Wall',
+    title: 'Creative Concept & Experience Design',
+    promise: 'The big idea that makes everything else fall into place.',
+    includes: [
+      'Experience strategy and concept development',
+      '3D renders, mood systems, and visual direction',
+      'Audience journey mapping and touchpoint design'
+    ],
+    outcome: 'A creative platform that scales from one activation to an entire campaign.'
+  },
+  {
+    tag: 'Fabrication Bay',
+    title: 'Production + Fabrication + Build Oversight',
+    promise: 'We manage every vendor, timeline, and bolt so you don\'t have to.',
+    includes: [
+      'Fabrication partner sourcing, bidding, and management',
+      'Material specification, structural engineering sign-off',
+      'On-site build supervision, safety compliance, and QC'
+    ],
+    outcome: 'A build delivered on-spec, on-time, and on-budget.'
+  },
+  {
+    tag: 'Photo Booth',
+    title: 'Content Capture & Post-event Documentation',
+    promise: 'Your activation lives on long after the last guest leaves.',
+    includes: [
+      'Photo + video teams embedded from load-in to breakdown',
+      'Same-day social edits and full post-production packages',
+      'Case study documentation with metrics and highlight reels'
+    ],
+    outcome: 'A campaign-ready asset library delivered within 72 hours.'
+  }
+];
+
+const cases = [
+  { title: 'The Refresh Station', detail: 'A fully custom cooling tunnel with mist effects, interactive flavor selector LED wall, and 4 branded photo stations. Designed for high-throughput sampling at 500+ visitors/hour.' },
+  { title: 'Shelf Takeover', detail: 'Modular end-cap system designed for flat-pack shipping and tool-free assembly. Deployed by store staff across 120 locations in 2 weeks with 98% compliance rate.' },
+  { title: 'The Unveil', detail: 'A curated reveal environment with 3 walkthrough zones: heritage tunnel, product interaction bar, and main stage with synchronized lighting and sound.' },
+  { title: 'The Experience Hub', detail: '60sqm island booth with a central brand tunnel, 6 demo stations, private meeting room, and integrated lead capture system across all touchpoints.' },
+  { title: 'The Branded Campus', detail: 'Full environmental overhaul across 4 floors: custom wayfinding system, 12 themed meeting rooms, culture wall installations, and reception experience redesign.' },
+  { title: 'The Documentation Package', detail: 'Embedded 3-person crew (photo, video, drone) across 5 cities. Daily social cuts delivered by 9PM, full asset library and 3-min hero film delivered within 72 hours per stop.' }
+];
+
+// ──────────────────────────────────────────
+// SOUND
+// ──────────────────────────────────────────
+let soundEnabled = false;
+const audioCtx = typeof AudioContext !== 'undefined' ? new AudioContext() : null;
+
+function playClick() {
+  if (!soundEnabled || !audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.08);
+  gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+  osc.start(audioCtx.currentTime);
+  osc.stop(audioCtx.currentTime + 0.1);
+}
+
+document.getElementById('sound-toggle').addEventListener('click', () => {
+  soundEnabled = !soundEnabled;
+  document.getElementById('sound-toggle').classList.toggle('on', soundEnabled);
+  if (soundEnabled && audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  playClick();
+});
+
+// ──────────────────────────────────────────
+// CUSTOM CURSOR
+// ──────────────────────────────────────────
+const cursor = document.getElementById('custom-cursor');
+const cursorLabel = document.getElementById('custom-cursor-label');
+let mouseX = 0, mouseY = 0;
+
+document.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  cursor.style.transform = `translate(${mouseX - 9}px, ${mouseY - 9}px)`;
+  cursorLabel.style.transform = `translate(${mouseX + 28}px, ${mouseY - 6}px)`;
+});
+
+// Hover states for interactive elements
+const interactiveEls = () => document.querySelectorAll('.venue-asset, .case-card, .btn-primary, .btn-secondary, .modal-close, .minimap-dot, #sound-toggle');
+
+function setupCursorHovers() {
+  interactiveEls().forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.classList.add('hovering');
+      const label = el.classList.contains('venue-asset') ? 'Explore' :
+                    el.classList.contains('case-card') ? 'View' : '';
+      if (label) {
+        cursorLabel.textContent = label;
+        cursorLabel.classList.add('visible');
+      }
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.classList.remove('hovering');
+      cursorLabel.classList.remove('visible');
+    });
+  });
+}
+setupCursorHovers();
+
+// ──────────────────────────────────────────
+// MODAL
+// ──────────────────────────────────────────
+const overlay = document.getElementById('modal-overlay');
+const modalContent = document.getElementById('modal-content');
+let lastFocused = null;
+
+function openServiceModal(index) {
+  const s = services[index];
+  if (!s) return;
+  lastFocused = document.activeElement;
+  document.getElementById('modal-tag').textContent = s.tag;
+  document.getElementById('modal-title').textContent = s.title;
+  document.getElementById('modal-promise').textContent = s.promise;
+  const list = document.getElementById('modal-includes');
+  list.innerHTML = s.includes.map(i => `<li>${i}</li>`).join('');
+  document.getElementById('modal-outcome').innerHTML = `<strong>Outcome:</strong> ${s.outcome}`;
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  playClick();
+  // Focus trap
+  setTimeout(() => document.getElementById('modal-close').focus(), 100);
+}
+
+function openCaseModal(index) {
+  const c = cases[index];
+  if (!c) return;
+  lastFocused = document.activeElement;
+  document.getElementById('modal-tag').textContent = 'Case Study';
+  document.getElementById('modal-title').textContent = c.title;
+  document.getElementById('modal-promise').textContent = c.detail;
+  document.getElementById('modal-includes').innerHTML = '';
+  document.getElementById('modal-outcome').innerHTML = '<strong>Full case study available on request.</strong>';
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  playClick();
+  setTimeout(() => document.getElementById('modal-close').focus(), 100);
+}
+
+function closeModal() {
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+  if (lastFocused) lastFocused.focus();
+}
+
+document.getElementById('modal-close').addEventListener('click', closeModal);
+overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+
+// Focus trap
+modalContent.addEventListener('keydown', (e) => {
+  if (e.key === 'Tab') {
+    const focusable = modalContent.querySelectorAll('button, a, [tabindex]');
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+});
+
+// ESC key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// Floor asset clicks
+document.querySelectorAll('.venue-asset').forEach(el => {
+  const handler = () => openServiceModal(parseInt(el.dataset.service));
+  el.addEventListener('click', handler);
+  el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(); }});
+});
+
+// Case card clicks
+document.querySelectorAll('.case-card').forEach(el => {
+  const handler = () => openCaseModal(parseInt(el.dataset.case));
+  el.addEventListener('click', handler);
+  el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(); }});
+});
+
+// ──────────────────────────────────────────
+// SCROLL REVEAL
+// ──────────────────────────────────────────
+const allRevealEls = document.querySelectorAll('.reveal, .process-step, .case-card, .section-tag');
+
+if ('IntersectionObserver' in window) {
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const delay = entry.target.dataset.delay || 0;
+        setTimeout(() => entry.target.classList.add('visible'), parseInt(delay));
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.05, rootMargin: '0px 0px -30px 0px' });
+
+  allRevealEls.forEach(el => revealObserver.observe(el));
+}
+
+// Fallback: force reveal everything after 3s in case observer doesn't fire
+setTimeout(() => {
+  allRevealEls.forEach(el => el.classList.add('visible'));
+}, 3000);
+
+// ──────────────────────────────────────────
+// MINIMAP
+// ──────────────────────────────────────────
+const sections = ['hero', 'floor', 'process', 'proof', 'contact'];
+const dots = document.querySelectorAll('.minimap-dot');
+
+function updateMinimap() {
+  let current = 'hero';
+  const scrollY = window.scrollY + window.innerHeight / 2;
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.offsetTop <= scrollY) current = id;
+  });
+  dots.forEach(d => d.classList.toggle('active', d.dataset.section === current));
+}
+
+window.addEventListener('scroll', updateMinimap, { passive: true });
+
+function scrollToSection(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  playClick();
+}
+
+// Minimap keyboard
+dots.forEach(d => {
+  d.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); scrollToSection(d.dataset.section); }
+  });
+});
+
+// ──────────────────────────────────────────
+// PARALLAX (lightweight)
+// ──────────────────────────────────────────
+let ticking = false;
+window.addEventListener('scroll', () => {
+  if (!ticking) {
+    requestAnimationFrame(() => {
+      const scrollY = window.scrollY;
+      const gridLines = document.querySelector('.hero-grid-lines');
+      if (gridLines) gridLines.style.transform = `translateY(${scrollY * 0.15}px)`;
+      ticking = false;
+    });
+    ticking = true;
+  }
+}, { passive: true });
+
+// ── VENUE 3D MOUSE TRACKING ──
+const venueScene = document.getElementById('venue-scene');
+if (venueScene) {
+  const venueWrapper = venueScene.closest('.venue-wrapper');
+  venueWrapper.addEventListener('mousemove', (e) => {
+    const rect = venueWrapper.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    venueScene.style.transform = `rotateX(${18 - y * 6}deg) rotateY(${x * 4}deg)`;
+  });
+  venueWrapper.addEventListener('mouseleave', () => {
+    venueScene.style.transform = 'rotateX(18deg) rotateZ(0deg)';
+  });
+}
+
+// ──────────────────────────────────────────
+// FORM HANDLER
+// ──────────────────────────────────────────
+function handleSubmit(e) {
+  e.preventDefault();
+  playClick();
+  const btn = e.target.querySelector('.btn-primary');
+  btn.textContent = 'SENT — WE\'LL BE IN TOUCH';
+  btn.style.background = 'transparent';
+  btn.style.color = 'var(--accent)';
+  btn.style.border = '1px solid var(--accent)';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = 'REQUEST A PROPOSAL';
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.style.border = '';
+    btn.disabled = false;
+    e.target.reset();
+  }, 4000);
+}
+</script>
+</body>
+</html>
