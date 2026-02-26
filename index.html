@@ -2140,7 +2140,6 @@ if (venueScene) {
     venueScene.style.transform = 'rotateX(18deg) rotateZ(0deg)';
   });
 }
-
 // ──────────────────────────────────────────
 // FORM HANDLER
 // ──────────────────────────────────────────
@@ -2168,104 +2167,52 @@ function handleSubmit(e) {
   btn.style.opacity = '0.6';
   btn.disabled = true;
 
-  // ─────────────────────────────────────────────────
-  // GOOGLE SHEETS SETUP (one-time, takes 5 minutes):
-  //
-  // 1. Go to sheets.google.com → create a new sheet
-  // 2. In Row 1, type these headers:
-  //    A1: Name | B1: Company | C1: Launching
-  //    D1: Budget | E1: Timeline | F1: Link | G1: Submitted
-  //
-  // 3. Click Extensions → Apps Script
-  // 4. Delete everything, paste this code:
-  //
-  //    function doPost(e) {
-  //      var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  //      var data = JSON.parse(e.postData.contents);
-  //      sheet.appendRow([
-  //        data.name,
-  //        data.company,
-  //        data.launching,
-  //        data.budget,
-  //        data.timeline,
-  //        data.link,
-  //        data.submitted
-  //      ]);
-  //      return ContentService
-  //        .createTextOutput(JSON.stringify({status: 'ok'}))
-  //        .setMimeType(ContentService.MimeType.JSON);
-  //    }
-  //
-  // 5. Click Deploy → New deployment
-  //    - Type: Web app
-  //    - Execute as: Me
-  //    - Who has access: Anyone
-  //    - Click Deploy → Authorize → Allow
-  //
-  // 6. Copy the Web app URL and paste it below:
-  // ─────────────────────────────────────────────────
+  // ✅ Your Vercel API route (this is the only URL you should use)
+  const API_URL = 'https://stride-dashboard.vercel.app/api/leads';
 
-  const GOOGLE_SHEET_URL = 'https://stride-dashboard.vercel.app/';
-
-  // Check if URL has been configured
-  if (GOOGLE_SHEET_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
-    // Demo mode — no backend configured yet
-    console.warn('Google Sheet URL not configured. Set GOOGLE_SHEET_URL in the script.');
-    btn.textContent = 'SENT — WE\'LL BE IN TOUCH';
-    btn.style.background = 'transparent';
-    btn.style.color = 'var(--accent)';
-    btn.style.border = '1px solid var(--accent)';
-    btn.style.opacity = '1';
-    setTimeout(() => {
-      btn.textContent = originalText;
-      btn.style.background = '';
-      btn.style.color = '';
-      btn.style.border = '';
-      btn.style.opacity = '';
-      btn.disabled = false;
-      form.reset();
-    }, 4000);
-    return;
-  }
-
-  // Send to Google Sheets
-  fetch(GOOGLE_SHEET_URL, {
+  fetch(API_URL, {
     method: 'POST',
-    mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   })
-  .then(() => {
-    btn.textContent = 'SENT — WE\'LL BE IN TOUCH';
-    btn.style.background = 'transparent';
-    btn.style.color = 'var(--accent)';
-    btn.style.border = '1px solid var(--accent)';
-    btn.style.opacity = '1';
-    setTimeout(() => {
-      btn.textContent = originalText;
-      btn.style.background = '';
-      btn.style.color = '';
-      btn.style.border = '';
-      btn.style.opacity = '';
-      btn.disabled = false;
-      form.reset();
-    }, 4000);
-  })
-  .catch(() => {
-    btn.textContent = 'ERROR — TRY AGAIN';
-    btn.style.background = 'transparent';
-    btn.style.color = '#ff4444';
-    btn.style.border = '1px solid #ff4444';
-    btn.style.opacity = '1';
-    setTimeout(() => {
-      btn.textContent = originalText;
-      btn.style.background = '';
-      btn.style.color = '';
-      btn.style.border = '';
-      btn.style.opacity = '';
-      btn.disabled = false;
-    }, 3000);
-  });
+    .then(async (res) => {
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json?.error || 'Request failed');
+      return json;
+    })
+    .then(() => {
+      btn.textContent = 'SENT — WE\'LL BE IN TOUCH';
+      btn.style.background = 'transparent';
+      btn.style.color = 'var(--accent)';
+      btn.style.border = '1px solid var(--accent)';
+      btn.style.opacity = '1';
+
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.background = '';
+        btn.style.color = '';
+        btn.style.border = '';
+        btn.style.opacity = '';
+        btn.disabled = false;
+        form.reset();
+      }, 4000);
+    })
+    .catch(() => {
+      btn.textContent = 'ERROR — TRY AGAIN';
+      btn.style.background = 'transparent';
+      btn.style.color = '#ff4444';
+      btn.style.border = '1px solid #ff4444';
+      btn.style.opacity = '1';
+
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.background = '';
+        btn.style.color = '';
+        btn.style.border = '';
+        btn.style.opacity = '';
+        btn.disabled = false;
+      }, 3000);
+    });
 }
 </script>
 </body>
